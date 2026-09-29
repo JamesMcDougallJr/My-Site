@@ -17,9 +17,6 @@ const navItems = {
   '/tutoring': {
     name: 'tutoring',
   },
-  'https://historical-map-omega.vercel.app/map': {
-    name: 'map',
-  },
 }
 
 function FlameIcon({ className = '' }: { className?: string }) {

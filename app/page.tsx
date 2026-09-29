@@ -1,17 +1,9 @@
 import { BlogPosts } from 'app/components/posts'
-import { Suspense, lazy } from 'react'
+import { Suspense } from 'react'
 import Image from 'next/image'
 import { LoadingSpinner } from './components/loading-spinner'
 import { siteConfig } from './lib/seo'
 import { baseUrl } from './sitemap'
-
-const ObjectDetectionPlayer = lazy(() =>
-  import('./components/object_detector/object_detection_player').then(
-    (mod) => ({
-      default: mod.ObjectDetectionPlayer,
-    })
-  )
-)
 
 export default function Page(): JSX.Element {
   return (
@@ -158,23 +150,6 @@ export default function Page(): JSX.Element {
             <BlogPosts />
           </Suspense>
         </div>
-      </section>
-
-      <section className="mt-8">
-        <Suspense
-          fallback={
-            <div className="flex items-center justify-center p-12 bg-card border border-slate-200 dark:border-slate-700 rounded-lg">
-              <div className="flex flex-col items-center space-y-4">
-                <LoadingSpinner size="lg" />
-                <p className="text-slate-600 dark:text-slate-400 text-sm">
-                  Loading object detection model...
-                </p>
-              </div>
-            </div>
-          }
-        >
-          <ObjectDetectionPlayer />
-        </Suspense>
       </section>
     </>
   )
