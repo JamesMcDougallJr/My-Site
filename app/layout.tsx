@@ -12,6 +12,10 @@ import { defaultMetadata } from './lib/seo'
 
 export const metadata = defaultMetadata
 
+// Off by default: flip NEXT_PUBLIC_ENABLE_CHAT_AGENT=true only once the
+// local AgentCore agent (see agent/) is deployed and wired up for real.
+const CHAT_AGENT_ENABLED = process.env.NEXT_PUBLIC_ENABLE_CHAT_AGENT === 'true'
+
 const cx = (...classes: (string | boolean | undefined)[]): string =>
   classes.filter(Boolean).join(' ')
 
@@ -59,7 +63,7 @@ export default function RootLayout({
             <ConditionalFooter />
           </main>
         </ThemeProvider>
-        <ChatWidget />
+        {CHAT_AGENT_ENABLED && <ChatWidget />
         <Analytics />
         <SpeedInsights />
       </body>
