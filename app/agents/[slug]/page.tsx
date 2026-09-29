@@ -14,8 +14,11 @@ const typeLabels: Record<string, string> = {
   automated: 'Automated',
 }
 
+// Off by default alongside the chat widget — see app/layout.tsx.
+const CHAT_AGENT_ENABLED = process.env.NEXT_PUBLIC_ENABLE_CHAT_AGENT === 'true'
+
 export function generateStaticParams() {
-  return agents.map((agent) => ({ slug: agent.slug }))
+  return CHAT_AGENT_ENABLED ? agents.map((agent) => ({ slug: agent.slug })) : []
 }
 
 type Params = Promise<{ slug: string }>
@@ -36,6 +39,8 @@ export async function generateMetadata({
 }
 
 export default async function AgentPage({ params }: { params: Params }) {
+  if (!CHAT_AGENT_ENABLED) notFound()
+
   const { slug } = await params
   const agent = getAgent(slug)
   if (!agent) notFound()

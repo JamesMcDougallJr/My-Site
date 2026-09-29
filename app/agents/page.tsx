@@ -1,4 +1,5 @@
 import Link from 'next/link'
+import { notFound } from 'next/navigation'
 import type { Metadata } from 'next'
 import { agents } from './agent-data'
 
@@ -7,11 +8,13 @@ export const metadata: Metadata = {
   description: 'AI agents built and hosted by James McDougall.',
 }
 
+// Off by default alongside the chat widget — see app/layout.tsx.
+const CHAT_AGENT_ENABLED = process.env.NEXT_PUBLIC_ENABLE_CHAT_AGENT === 'true'
+
 const typeColors: Record<string, string> = {
   'prompt-driven':
     'bg-purple-100 text-purple-700 dark:bg-purple-900/50 dark:text-purple-300',
-  automated:
-    'bg-blue-100 text-blue-700 dark:bg-blue-900/50 dark:text-blue-300',
+  automated: 'bg-blue-100 text-blue-700 dark:bg-blue-900/50 dark:text-blue-300',
 }
 
 const typeLabels: Record<string, string> = {
@@ -20,6 +23,8 @@ const typeLabels: Record<string, string> = {
 }
 
 export default function AgentsPage(): JSX.Element {
+  if (!CHAT_AGENT_ENABLED) notFound()
+
   return (
     <section>
       <h1 className="text-4xl md:text-5xl font-bold tracking-tight mb-8 bg-gradient-to-r from-blue-500 to-purple-500 bg-clip-text text-transparent">
