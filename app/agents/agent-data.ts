@@ -7,7 +7,7 @@ export interface AgentProviderOption {
   requiresApiKey: boolean
 }
 
-export type AgentKind = 'chat' | 'dental-scheduler'
+export type AgentKind = 'chat'
 
 export interface Agent {
   slug: string
@@ -38,17 +38,6 @@ export const agents: Agent[] = [
       },
     ],
     kind: 'chat',
-  },
-  {
-    slug: 'dental-scheduler',
-    name: 'Dental Scheduler',
-    description:
-      "Books dental appointments via Cedar Ridge's Scheduling API — built for a live interview challenge. Test it below as the patient, or hand the endpoint to an evaluator.",
-    type: 'prompt-driven',
-    status: 'Active',
-    invokePath: '/api/dental-agent',
-    providers: [],
-    kind: 'dental-scheduler',
   },
 ]
 

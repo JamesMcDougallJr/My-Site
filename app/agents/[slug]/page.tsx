@@ -2,14 +2,11 @@ import { notFound } from 'next/navigation'
 import type { Metadata } from 'next'
 import { agents, getAgent } from '../agent-data'
 import { AgentChat } from './agent-chat'
-import { DentalSchedulerAdmin } from './dental-scheduler-admin'
-import { DentalSchedulerChat } from './dental-scheduler-chat'
 
 const typeColors: Record<string, string> = {
   'prompt-driven':
     'bg-purple-100 text-purple-700 dark:bg-purple-900/50 dark:text-purple-300',
-  automated:
-    'bg-blue-100 text-blue-700 dark:bg-blue-900/50 dark:text-blue-300',
+  automated: 'bg-blue-100 text-blue-700 dark:bg-blue-900/50 dark:text-blue-300',
 }
 
 const typeLabels: Record<string, string> = {
@@ -65,14 +62,7 @@ export default async function AgentPage({ params }: { params: Params }) {
         </p>
       </div>
 
-      {agent.kind === 'dental-scheduler' ? (
-        <div className="space-y-6">
-          <DentalSchedulerAdmin agent={agent} />
-          <DentalSchedulerChat agent={agent} />
-        </div>
-      ) : (
-        <AgentChat agent={agent} />
-      )}
+      <AgentChat agent={agent} />
     </section>
   )
 }
