@@ -23,7 +23,7 @@ const PORT = process.env.CONTEXT_BUILD_PORT || 39217
 const SITE_ORIGIN = `http://localhost:${PORT}`
 const OUTPUT_PATH =
   process.env.CONTEXT_OUTPUT_PATH ||
-  '../jamesmcdougalljr-agent/app/site_qa_agent/site-context.md'
+  'agent/app/site_qa_agent/site-context.md'
 const TOKEN_LIMIT = 15000
 // Rough chars-per-token estimate; good enough for a fail-loud guardrail.
 const CHARS_PER_TOKEN = 4
