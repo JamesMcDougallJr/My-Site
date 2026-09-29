@@ -63,7 +63,7 @@ export default function RootLayout({
             <ConditionalFooter />
           </main>
         </ThemeProvider>
-        {CHAT_AGENT_ENABLED && <ChatWidget />
+        {CHAT_AGENT_ENABLED && <ChatWidget />}
         <Analytics />
         <SpeedInsights />
       </body>
