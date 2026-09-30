@@ -1,7 +1,12 @@
 'use client'
 
 import { useEffect, useId, useRef, useState } from 'react'
-import { streamAgentReply } from '../lib/agent-stream'
+import { streamPreferredReply } from '../lib/preferred-agent-stream'
+import {
+  downloadNanoModel,
+  getNanoAvailability,
+  type NanoAvailability,
+} from '../lib/nano-chat'
 
 interface ChatMessage {
   role: 'user' | 'assistant'
@@ -11,6 +16,7 @@ interface ChatMessage {
 const MAX_INPUT_LENGTH = 500
 const REQUEST_TIMEOUT_MS = 30000
 const CONTACT_URL = 'https://calendly.com/jamesimcdougalljr/30min'
+const NANO_DISMISSED_KEY = 'nano-download-prompt-dismissed'
 
 function FlameIcon({ className = '' }: { className?: string }) {
   return (
@@ -67,6 +73,13 @@ export function ChatWidget(): JSX.Element {
   const [input, setInput] = useState('')
   const [pending, setPending] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [provider, setProvider] = useState<'gemini-nano' | 'bedrock' | null>(
+    null
+  )
+  const [nanoAvailability, setNanoAvailability] =
+    useState<NanoAvailability | null>(null)
+  const [downloadDismissed, setDownloadDismissed] = useState(true)
+  const [downloadProgress, setDownloadProgress] = useState<number | null>(null)
   const inputRef = useRef<HTMLInputElement>(null)
   const scrollRef = useRef<HTMLDivElement>(null)
   const panelId = useId()
@@ -74,6 +87,36 @@ export function ChatWidget(): JSX.Element {
   useEffect(() => {
     if (open) inputRef.current?.focus()
   }, [open])
+
+  useEffect(() => {
+    let dismissed = true
+    try {
+      dismissed = sessionStorage.getItem(NANO_DISMISSED_KEY) === 'true'
+    } catch {
+      // sessionStorage unavailable — default to not showing the banner.
+    }
+    setDownloadDismissed(dismissed)
+    getNanoAvailability().then(setNanoAvailability)
+  }, [])
+
+  function dismissDownloadBanner() {
+    setDownloadDismissed(true)
+    try {
+      sessionStorage.setItem(NANO_DISMISSED_KEY, 'true')
+    } catch {
+      // ignore
+    }
+  }
+
+  async function handleEnableOnDeviceAi() {
+    setDownloadProgress(0)
+    try {
+      await downloadNanoModel(setDownloadProgress)
+      setNanoAvailability('available')
+    } finally {
+      setDownloadProgress(null)
+    }
+  }
 
   useEffect(() => {
     scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight })
@@ -106,10 +149,11 @@ export function ChatWidget(): JSX.Element {
     const timeout = setTimeout(() => controller.abort(), REQUEST_TIMEOUT_MS)
 
     try {
-      await streamAgentReply({
+      await streamPreferredReply({
         invokePath: '/agent/invocations',
         prompt,
         signal: controller.signal,
+        onProviderResolved: setProvider,
         onDelta: (delta) => {
           setMessages((prev) => {
             const next = [...prev]
@@ -147,9 +191,16 @@ export function ChatWidget(): JSX.Element {
           className="flex h-[28rem] w-[min(22rem,calc(100vw-2rem))] flex-col overflow-hidden rounded-xl border border-slate-200 bg-white shadow-lg dark:border-slate-700 dark:bg-slate-800/95"
         >
           <div className="flex items-center justify-between border-b border-slate-200 px-4 py-3 dark:border-slate-700">
-            <h2 className="bg-gradient-to-r from-blue-500 to-purple-500 bg-clip-text text-sm font-medium text-transparent">
-              Ask about James
-            </h2>
+            <div className="flex items-center gap-2">
+              <h2 className="bg-gradient-to-r from-blue-500 to-purple-500 bg-clip-text text-sm font-medium text-transparent">
+                Ask about James
+              </h2>
+              {provider === 'gemini-nano' && (
+                <span className="text-[10px] text-slate-400 dark:text-slate-500">
+                  on-device AI
+                </span>
+              )}
+            </div>
             <button
               type="button"
               onClick={() => setOpen(false)}
@@ -159,6 +210,41 @@ export function ChatWidget(): JSX.Element {
               <CloseIcon />
             </button>
           </div>
+
+          {!downloadDismissed && nanoAvailability === 'downloadable' && (
+            <div className="border-b border-slate-200 px-4 py-2 text-xs text-slate-600 dark:border-slate-700 dark:text-slate-400">
+              {downloadProgress === null ? (
+                <div className="flex items-center justify-between gap-2">
+                  <span>
+                    This browser can run this on-device — enable it to skip our
+                    server.
+                  </span>
+                  <div className="flex shrink-0 items-center gap-1">
+                    <button
+                      type="button"
+                      onClick={handleEnableOnDeviceAi}
+                      className="rounded-full bg-primary-color px-2 py-0.5 text-white"
+                    >
+                      Enable
+                    </button>
+                    <button
+                      type="button"
+                      onClick={dismissDownloadBanner}
+                      aria-label="Dismiss"
+                      className="rounded-full p-0.5 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200"
+                    >
+                      <CloseIcon />
+                    </button>
+                  </div>
+                </div>
+              ) : (
+                <span>
+                  Downloading on-device AI… {Math.round(downloadProgress * 100)}
+                  %
+                </span>
+              )}
+            </div>
+          )}
 
           <div
             ref={scrollRef}
