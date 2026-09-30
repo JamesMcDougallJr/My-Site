@@ -7,9 +7,14 @@ import { ThemeProvider } from './components/theme-provider'
 import { Analytics } from '@vercel/analytics/react'
 import { SpeedInsights } from '@vercel/speed-insights/next'
 import { ErrorMonitor } from './components/error-monitor'
+import { ChatWidget } from './components/chat-widget'
 import { defaultMetadata } from './lib/seo'
 
 export const metadata = defaultMetadata
+
+// Off by default: flip NEXT_PUBLIC_ENABLE_CHAT_AGENT=true only once the
+// local AgentCore agent (see agent/) is deployed and wired up for real.
+const CHAT_AGENT_ENABLED = process.env.NEXT_PUBLIC_ENABLE_CHAT_AGENT === 'true'
 
 const cx = (...classes: (string | boolean | undefined)[]): string =>
   classes.filter(Boolean).join(' ')
@@ -22,10 +27,7 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={cx(
-        GeistSans.variable,
-        GeistMono.variable
-      )}
+      className={cx(GeistSans.variable, GeistMono.variable)}
       suppressHydrationWarning
     >
       <head>
@@ -61,6 +63,7 @@ export default function RootLayout({
             <ConditionalFooter />
           </main>
         </ThemeProvider>
+        {CHAT_AGENT_ENABLED && <ChatWidget />}
         <Analytics />
         <SpeedInsights />
       </body>

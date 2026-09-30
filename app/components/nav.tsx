@@ -4,6 +4,9 @@ import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { ThemeToggle } from './theme-toggle'
 
+// Off by default alongside the chat widget — see app/layout.tsx.
+const CHAT_AGENT_ENABLED = process.env.NEXT_PUBLIC_ENABLE_CHAT_AGENT === 'true'
+
 const navItems = {
   '/': {
     name: 'home',
@@ -14,6 +17,7 @@ const navItems = {
   '/projects': {
     name: 'projects',
   },
+  ...(CHAT_AGENT_ENABLED ? { '/agents': { name: 'agents' } } : {}),
   '/tutoring': {
     name: 'tutoring',
   },
