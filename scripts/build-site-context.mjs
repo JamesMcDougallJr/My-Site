@@ -243,6 +243,39 @@ async function extractAndWrite() {
   await fs.mkdir(path.dirname(outPath), { recursive: true })
   await fs.writeFile(outPath, doc, 'utf8')
   console.log(`Wrote ${outPath} (~${approxTokens} tokens, ${sections.length} sections)`)
+
+  await publishNanoContext({ fs, path, siteContext: doc })
+}
+
+// Copies the same three files the Bedrock agent builds its system prompt
+// from into public/, so the client-side Gemini Nano chat path (app/lib/
+// nano-chat.ts) can fetch and assemble an equivalent system prompt without a
+// second, drifting copy of this content. Deliberately NOT pre-substituting
+// {{TODAY}} here — the static site can be served long after this build ran,
+// so that substitution happens client-side at session-creation time instead,
+// mirroring agent/app/site_qa_agent/main.py's _build_system_prompt().
+async function publishNanoContext({ fs, path, siteContext }) {
+  const agentDir = path.resolve(process.cwd(), 'agent/app/site_qa_agent')
+  const outDir = path.resolve(process.cwd(), 'public/agent-context')
+  await fs.mkdir(outDir, { recursive: true })
+
+  const systemPromptTemplate = await fs.readFile(
+    path.join(agentDir, 'system-prompt.md'),
+    'utf8'
+  )
+  const careerFacts = await fs.readFile(
+    path.join(agentDir, 'career-facts.md'),
+    'utf8'
+  )
+
+  await fs.writeFile(
+    path.join(outDir, 'system-prompt.md'),
+    systemPromptTemplate,
+    'utf8'
+  )
+  await fs.writeFile(path.join(outDir, 'site-context.md'), siteContext, 'utf8')
+  await fs.writeFile(path.join(outDir, 'career-facts.md'), careerFacts, 'utf8')
+  console.log(`Wrote public/agent-context/ (for the on-device chat path)`)
 }
 
 main().catch((err) => {

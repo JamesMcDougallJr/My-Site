@@ -1,5 +1,5 @@
 export type AgentType = 'prompt-driven' | 'automated'
-export type AgentProvider = 'bedrock' | 'openai'
+export type AgentProvider = 'gemini-nano' | 'bedrock' | 'openai'
 
 export interface AgentProviderOption {
   id: AgentProvider
@@ -30,7 +30,12 @@ export const agents: Agent[] = [
     status: 'Active',
     invokePath: '/agent/invocations',
     providers: [
-      { id: 'bedrock', name: 'Bedrock (default)', requiresApiKey: false },
+      {
+        id: 'gemini-nano',
+        name: 'On-device AI (Gemini Nano)',
+        requiresApiKey: false,
+      },
+      { id: 'bedrock', name: 'Bedrock', requiresApiKey: false },
       {
         id: 'openai',
         name: 'OpenAI (bring your own key)',

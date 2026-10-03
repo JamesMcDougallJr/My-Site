@@ -15,7 +15,7 @@ export interface Project {
   overview: string
   features: ProjectFeature[]
   techStack: TechItem[]
-  githubUrl: string
+  githubUrl?: string
   liveUrl?: string
   status: 'Active' | 'Beta' | 'Archived'
 }
@@ -147,6 +147,38 @@ export const projects: Project[] = [
     ],
     githubUrl: 'https://github.com/JamesMcDougallJr/portfolio-starter-kit',
     status: 'Active',
+  },
+  {
+    slug: 'webmcp-demo',
+    title: 'WebMCP + Gemini Nano Demo',
+    description:
+      "A one-off demo pairing Chrome's on-device Gemini Nano model with WebMCP, the emerging browser standard for exposing page tools to AI agents.",
+    overview:
+      "This page registers a couple of small tools (fetch a bio, fetch contact info) via the experimental WebMCP browser standard, and uses Chrome's on-device Gemini Nano model as the agent that decides which tool to call. Both are experimental and flag-gated in Chrome today — this is a proof of concept, not a production feature. See the live demo for the full interactive version.",
+    features: [
+      {
+        title: 'On-device tool selection',
+        description:
+          'Gemini Nano picks between answering directly or calling a registered tool, using constrained JSON output.',
+      },
+      {
+        title: 'WebMCP tool registration',
+        description:
+          'The same tools are registered via document.modelContext.registerTool() when the WebMCP flag is enabled, inspectable from DevTools.',
+      },
+      {
+        title: 'Graceful degradation',
+        description:
+          "Falls back to a static explanation and a manual 'simulate' button when neither API is available.",
+      },
+    ],
+    techStack: [
+      { name: 'Chrome Prompt API', category: 'ai' },
+      { name: 'WebMCP', category: 'ai' },
+      { name: 'Next.js', category: 'core' },
+      { name: 'TypeScript', category: 'core' },
+    ],
+    status: 'Beta',
   },
 ]
 

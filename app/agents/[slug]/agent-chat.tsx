@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from 'react'
 import type { Agent, AgentProvider } from '../agent-data'
 import { streamAgentReply } from '../../lib/agent-stream'
+import { getNanoAvailability, streamNanoReply } from '../../lib/nano-chat'
 
 interface ChatMessage {
   role: 'user' | 'assistant'
@@ -26,6 +27,7 @@ export function AgentChat({ agent }: { agent: Agent }): JSX.Element {
   const [pending, setPending] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const scrollRef = useRef<HTMLDivElement>(null)
+  const manuallySelected = useRef(false)
 
   const providerOption = agent.providers.find((p) => p.id === selectedProvider)
   const requiresApiKey = providerOption?.requiresApiKey ?? false
@@ -34,7 +36,18 @@ export function AgentChat({ agent }: { agent: Agent }): JSX.Element {
     scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight })
   }, [messages, pending])
 
+  useEffect(() => {
+    const hasNanoOption = agent.providers.some((p) => p.id === 'gemini-nano')
+    if (!hasNanoOption) return
+    getNanoAvailability().then((availability) => {
+      if (availability === 'available' && !manuallySelected.current) {
+        setSelectedProvider('gemini-nano')
+      }
+    })
+  }, [agent.providers])
+
   function handleProviderChange(provider: AgentProvider) {
+    manuallySelected.current = true
     setSelectedProvider(provider)
     const option = agent.providers.find((p) => p.id === provider)
     if (!option?.requiresApiKey) {
@@ -72,28 +85,36 @@ export function AgentChat({ agent }: { agent: Agent }): JSX.Element {
     const controller = new AbortController()
     const timeout = setTimeout(() => controller.abort(), REQUEST_TIMEOUT_MS)
 
-    try {
-      // NOTE: provider/apiKey are forwarded to the AgentCore harness as
-      // `provider`/`api_key` body fields (see app/lib/agent-stream.ts) —
-      // main.py in ../jamesmcdougalljr-agent reads them and picks the
-      // matching model client in model/load.py.
-      await streamAgentReply({
-        invokePath: agent.invokePath,
-        prompt,
-        provider: selectedProvider,
-        apiKey: requiresApiKey ? apiKey : undefined,
-        signal: controller.signal,
-        onDelta: (delta) => {
-          setMessages((prev) => {
-            const next = [...prev]
-            const last = next[next.length - 1]
-            if (last && last.role === 'assistant') {
-              next[next.length - 1] = { ...last, text: last.text + delta }
-            }
-            return next
-          })
-        },
+    const onDelta = (delta: string) => {
+      setMessages((prev) => {
+        const next = [...prev]
+        const last = next[next.length - 1]
+        if (last && last.role === 'assistant') {
+          next[next.length - 1] = { ...last, text: last.text + delta }
+        }
+        return next
       })
+    }
+
+    try {
+      if (selectedProvider === 'gemini-nano') {
+        // Explicitly picked by the visitor — a failure here surfaces this
+        // page's normal error UI, no silent fallback to another provider.
+        await streamNanoReply({ prompt, signal: controller.signal, onDelta })
+      } else {
+        // NOTE: provider/apiKey are forwarded to the AgentCore harness as
+        // `provider`/`api_key` body fields (see app/lib/agent-stream.ts) —
+        // main.py in ../jamesmcdougalljr-agent reads them and picks the
+        // matching model client in model/load.py.
+        await streamAgentReply({
+          invokePath: agent.invokePath,
+          prompt,
+          provider: selectedProvider,
+          apiKey: requiresApiKey ? apiKey : undefined,
+          signal: controller.signal,
+          onDelta,
+        })
+      }
     } catch (err) {
       const timedOut = controller.signal.aborted
       setError(
