@@ -21,8 +21,8 @@ const navItems = {
   '/tutoring': {
     name: 'tutoring',
   },
-  '/stay': {
-    name: 'stay',
+  '/rental': {
+    name: 'rental',
   },
 }
 
