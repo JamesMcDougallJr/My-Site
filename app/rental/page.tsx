@@ -1,6 +1,6 @@
 import Image from 'next/image'
 
-// Listing details mirror the Zumper listing; update both together.
+// Details and photos come from the Zumper listing; the CTA links to Zillow.
 const property = {
   name: 'Liberty Wells Bungalow',
   tagline: '2 bed · 2 bath house for rent',
@@ -12,7 +12,7 @@ const property = {
     'Out back is a fenced yard with a large deck and pergola. Solar panels, in-home laundry, and air conditioning keep it comfortable year-round, and the State St / Hampton Ave bus stop is just around the corner.',
   ],
   bookingUrl:
-    'https://www.zumper.com/address/151-e-hampton-ave-salt-lake-city-ut-84111-usa',
+    'https://www.zillow.com/homedetails/151-E-Hampton-Ave-S-Salt-Lake-City-UT-84111/2071443884_zpid/',
   details: [
     { label: 'Bedrooms', value: '2' },
     { label: 'Baths', value: '2' },
