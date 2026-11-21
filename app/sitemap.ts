@@ -21,7 +21,7 @@ export default async function sitemap() {
     '/projects/webcam-object-detection',
   ]
 
-  const routes = ['', '/blog', '/tutoring', ...projectRoutes].map((route) => ({
+  const routes = ['', '/blog', '/tutoring', '/rental', ...projectRoutes].map((route) => ({
     url: `${baseUrl}${route}`,
     lastModified: new Date().toISOString().split('T')[0],
   }))

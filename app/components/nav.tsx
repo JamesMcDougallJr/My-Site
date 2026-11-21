@@ -21,6 +21,9 @@ const navItems = {
   '/tutoring': {
     name: 'tutoring',
   },
+  '/rental': {
+    name: 'rental',
+  },
 }
 
 function FlameIcon({ className = '' }: { className?: string }) {
