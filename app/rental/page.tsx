@@ -12,7 +12,7 @@ const property = {
     'Out back is a fenced yard with a large deck and pergola. Solar panels, in-home laundry, and air conditioning keep it comfortable year-round, and the State St / Hampton Ave bus stop is just around the corner.',
   ],
   bookingUrl:
-    'https://www.zillow.com/homedetails/151-E-Hampton-Ave-S-Salt-Lake-City-UT-84111/2071443884_zpid/',
+    'https://www.zillow.com/homedetails/151-E-Hampton-Ave-S-Salt-Lake-City-UT-84111/2071443884_zpid/?view=public',
   details: [
     { label: 'Bedrooms', value: '2' },
     { label: 'Baths', value: '2' },
